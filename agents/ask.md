@@ -1,12 +1,14 @@
 ---
-name: explorer
-mode: all
+name: ask
+mode: primary
+description: Helps explore information like code, documents, papers, web sources and other materials
 temperature: 0.0
 permission:
   edit: deny
   task:
     "*": deny
-    "explorer": allow
+    "explore": allow
+    "general": allow
   skill:
     "*": deny
     "dispatching-parallel-agents": allow

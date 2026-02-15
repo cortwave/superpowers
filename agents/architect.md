@@ -6,7 +6,7 @@ permission:
   edit: ask
   task:
     "*": deny
-    "explorer": allow
+    "explore": allow
   skill:
     "*": deny
     "brainstorming": allow
