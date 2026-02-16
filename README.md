@@ -32,6 +32,7 @@ Skills trigger automatically. The agents check for relevant skills before every 
 ## Installation
 
 **IMPORTANT** running this installation will replace all your current skills, agents and config under `~/.config/opencode`
+
 **IMPORTANT** update model names in `models.conf` to specify which models agents should use
 
 Requires [OpenCode](https://opencode.ai).
