@@ -52,7 +52,7 @@ digraph brainstorming {
 }
 ```
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+**The terminal state is invoking writing-plans.** The ONLY skill you invoke after brainstorming is writing-plans.
 
 ## The Process
 
@@ -80,7 +80,6 @@ digraph brainstorming {
 **Documentation:**
 - Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 - Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document to git
 
 **Implementation:**
 - Invoke the writing-plans skill to create a detailed implementation plan
