@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 
 class TestSkillPermissions:
@@ -57,3 +58,28 @@ class TestTaskPermissions:
                     f"Agent '{agent_name}' ({path.name}) allows task agent "
                     f"'{allowed_agent}' which does not exist in agents/"
                 )
+
+
+class TestModelPlaceholders:
+    PLACEHOLDER_RE = re.compile(r"^<([A-Z_]+)>$")
+
+    def test_model_placeholder_matches_models_conf(
+        self, repo_agents: list[tuple[Path, dict]], models_conf_keys: set[str]
+    ) -> None:
+        for path, fm in repo_agents:
+            agent_name = fm["name"]
+            model = fm.get("model")
+            assert model is not None, (
+                f"Agent '{agent_name}' ({path.name}) has no model field"
+            )
+            match = self.PLACEHOLDER_RE.match(model)
+            assert match is not None, (
+                f"Agent '{agent_name}' ({path.name}) model '{model}' "
+                f"is not a valid placeholder (expected <KEY_NAME>)"
+            )
+            key = match.group(1)
+            assert key in models_conf_keys, (
+                f"Agent '{agent_name}' ({path.name}) model placeholder "
+                f"'{model}' references key '{key}' not found in models.conf. "
+                f"Available keys: {models_conf_keys}"
+            )
