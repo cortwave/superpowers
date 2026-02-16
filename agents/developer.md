@@ -2,12 +2,13 @@
 name: developer
 mode: primary
 temperature: 0.0
+color: "#d48104"
 permission:
   task:
     "*": deny
     "code-reviewer": allow
-    "general": allow
-    "explore": allow
+    "explorer": allow
+    "developer": allow
   skill:
     "*": deny
     "dispatching-parallel-agents": allow
@@ -19,7 +20,6 @@ permission:
     "systematic-debugging": allow
     "test-driven-development": allow
     "using-git-worktrees": allow
-    "using-superpower": allow
     "verification-before-completion": allow 
     "python-development": allow
 ---

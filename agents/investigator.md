@@ -3,17 +3,16 @@ name: investigator
 mode: all
 description: Helps find and analyze bugs and unexpected behaviour
 temperature: 0.5
+color: "#d474bf"
 permission:
   edit: ask
   task:
     "*": deny
-    "explore": allow
-    "general": allow
+    "explorer": allow
   skill:
     "*": deny
     "brainstorming": allow
     "dispatching-parallel-agents": allow
-    "using-superpower": allow
     "systematic-debugging": allow
 ---
 

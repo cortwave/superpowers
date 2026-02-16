@@ -17,36 +17,6 @@ The key difference: instead of one agent doing everything, this fork splits work
 
 **How agents interact:** The developer can launch code-reviewer as a subagent. The architect and investigator can request edits but need confirmation. The ask agent is read-only. This separation enforces discipline -- the agent designing your system is not the same one implementing it.
 
-## Skills
-
-16 composable skills that agents invoke automatically based on context.
-
-**Design and Planning**
-- **brainstorming** -- Socratic design refinement before code
-- **writing-plans** -- Detailed implementation plans with exact file paths and verification steps
-- **executing-plans** -- Batch execution with human checkpoints
-
-**Development**
-- **test-driven-development** -- RED-GREEN-REFACTOR cycle
-- **subagent-driven-development** -- Fast iteration with two-stage review (spec compliance, then code quality)
-- **python-development** -- Python-specific practices (uv, pyrefly, pydantic, ruff)
-- **using-git-worktrees** -- Isolated development branches
-
-**Quality**
-- **systematic-debugging** -- 4-phase root cause process
-- **verification-before-completion** -- Ensure fixes are actually fixed
-- **requesting-code-review** -- Pre-review checklist
-- **receiving-code-review** -- Responding to feedback with technical rigor
-
-**Coordination**
-- **dispatching-parallel-agents** -- Concurrent subagent workflows
-- **finishing-a-development-branch** -- Merge/PR decision workflow
-
-**Meta**
-- **using-superpowers** -- Introduction to the skills system
-- **writing-skills** -- Create new skills following best practices
-- **exploring-codebases** -- Structured codebase exploration
-
 ## Workflow
 
 1. **Design** -- `@architect` refines your idea through brainstorming, produces a design doc
@@ -57,44 +27,36 @@ The key difference: instead of one agent doing everything, this fork splits work
 
 Use `@ask` or `@investigator` at any point for research or debugging.
 
-Skills trigger automatically. The agents check for relevant skills before every task -- mandatory workflows, not suggestions.
+Skills trigger automatically. The agents check for relevant skills before every task.
 
 ## Installation
+
+**IMPORTANT** running this installation will replace all your current skills, agents and config under `~/.config/opencode`
 
 Requires [OpenCode](https://opencode.ai) and Git.
 
 ```bash
+
+# remove existing installation
+rm -rf ~/.config/opencode/superpowers
+
 # Clone
 git clone https://github.com/cortwave/superpowers.git ~/.config/opencode/superpowers
-
-# Symlink plugin
-mkdir -p ~/.config/opencode/plugins
-rm -f ~/.config/opencode/plugins/superpowers.js
-ln -s ~/.config/opencode/superpowers/.opencode/plugins/superpowers.js ~/.config/opencode/plugins/superpowers.js
 
 # Symlink skills
 mkdir -p ~/.config/opencode/skills
 rm -rf ~/.config/opencode/skills/superpowers
-ln -s ~/.config/opencode/superpowers/skills ~/.config/opencode/skills/superpowers
+cp -r ~/.config/opencode/superpowers/skills ~/.config/opencode/skills
 
 # Copy OpenCode config
 cp ~/.config/opencode/superpowers/.opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc
 
 # Copy agents
+rm -rf ~/.config/opencode/agents
 cp -r ~/.config/opencode/superpowers/agents ~/.config/opencode/agents
 
 # Restart OpenCode
 ```
-
-For Windows instructions or troubleshooting, see [docs/README.opencode.md](docs/README.opencode.md).
-
-### Updating
-
-```bash
-cd ~/.config/opencode/superpowers && git pull
-```
-
-Restart OpenCode to load updates.
 
 ## Repo Structure
 

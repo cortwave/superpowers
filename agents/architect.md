@@ -2,16 +2,16 @@
 name: architect
 mode: primary
 temperature: 0.7
+color: "#9c1076"
 permission:
   edit: ask
   task:
     "*": deny
-    "explore": allow
+    "explorer": allow
   skill:
     "*": deny
     "brainstorming": allow
     "dispatching-parallel-agents": allow
-    "using-superpower": allow
     "writing-plans": allow
 ---
 
