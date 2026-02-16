@@ -25,8 +25,7 @@ The key difference: instead of one agent doing everything, this fork splits work
 4. **Review** -- `@code-reviewer` checks each step against the plan
 5. **Ship** -- `@developer` runs final verification, creates PR or merges
 
-Use `@
-explorer` or `@investigator` at any point for research or debugging.
+Use `@explorer` or `@investigator` at any point for research or debugging.
 
 Skills trigger automatically. The agents check for relevant skills before every task.
 
@@ -35,59 +34,11 @@ Skills trigger automatically. The agents check for relevant skills before every 
 **IMPORTANT** running this installation will replace all your current skills, agents and config under `~/.config/opencode`
 **IMPORTANT** update model names in `models.conf` to specify which models agents should use
 
-Requires [OpenCode](https://opencode.ai) and Git.
+Requires [OpenCode](https://opencode.ai).
 
 ```bash
-
-# remove existing installation
-rm -rf ~/.config/opencode/superpowers
-
-# Clone
-git clone https://github.com/cortwave/superpowers.git ~/.config/opencode/superpowers
-
-# Symlink skills
-mkdir -p ~/.config/opencode/skills
-rm -rf ~/.config/opencode/skills/superpowers
-cp -r ~/.config/opencode/superpowers/skills ~/.config/opencode/skills
-
-# Copy OpenCode config
-cp ~/.config/opencode/superpowers/.opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc
-
-# Copy agents
-rm -rf ~/.config/opencode/agents
-cp -r ~/.config/opencode/superpowers/agents ~/.config/opencode/agents
-
-# Restart OpenCode
+./install.sh
 ```
-
-## Repo Structure
-
-```
-agents/     6 specialized agent definitions
-skills/     16 composable skills
-.opencode/  Plugin, config, install docs
-lib/        Shared JS utilities
-docs/       Extended documentation
-tests/      Test suites
-```
-
-## Philosophy
-
-- **Test-Driven Development** -- Write tests first, always
-- **Systematic over ad-hoc** -- Process over guessing
-- **Complexity reduction** -- Simplicity as primary goal
-- **Evidence over claims** -- Verify before declaring success
-- **Separation of concerns** -- Agents with scoped roles prevent context pollution and enforce discipline
-
-## Contributing
-
-1. Fork the repository
-2. Create a branch
-3. Follow the `writing-skills` skill for new skills, or model new agents on existing ones in `agents/`
-4. Submit a PR
-
-See `skills/writing-skills/SKILL.md` for the skill authoring guide.
-
 ## License
 
 MIT License -- see LICENSE file for details.
@@ -98,4 +49,3 @@ Based on [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincen
 
 - **Original**: https://github.com/obra/superpowers
 - **This fork**: https://github.com/cortwave/superpowers
-- **Issues**: https://github.com/cortwave/superpowers/issues
