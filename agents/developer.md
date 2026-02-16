@@ -13,7 +13,7 @@ permission:
   skill:
     "*": deny
     "dispatching-parallel-agents": allow
-    "finishing-dev-branch": allow
+    "finishing-a-development-branch": allow
     "executing-plans": allow
     "receiving-code-review": allow
     "requesting-code-review": allow
