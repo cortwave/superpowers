@@ -9,7 +9,7 @@ The key difference: instead of one agent doing everything, this fork splits work
 | Agent | Mode | Role | Skills |
 |-------|------|------|--------|
 | **architect** | primary (0.7) | Designs solutions, explores trade-offs, produces design docs and implementation plans. Cannot write code. | brainstorming, writing-plans, dispatching-parallel-agents |
-| **ask** | primary (0.0) | Finds, extracts, and synthesizes information from code, docs, and the web. Cannot edit files. | exploring-codebases, dispatching-parallel-agents |
+| **explorer** | primary (0.0) | Finds, extracts, and synthesizes information from code, docs, and the web. Cannot edit files. | exploring-codebases, dispatching-parallel-agents |
 | **developer** | primary (0.0) | The main coding agent. Writes code, runs tests, manages branches, reviews work. | TDD, systematic-debugging, SDD, executing-plans, git-worktrees, code-review, verification, python-development |
 | **investigator** | all (0.5) | Finds and analyzes bugs and unexpected behavior. Cannot edit files without asking. | systematic-debugging, brainstorming |
 | **code-reviewer** | subagent | Reviews completed steps against plans and coding standards. No external skills. | none |
@@ -25,13 +25,15 @@ The key difference: instead of one agent doing everything, this fork splits work
 4. **Review** -- `@code-reviewer` checks each step against the plan
 5. **Ship** -- `@developer` runs final verification, creates PR or merges
 
-Use `@ask` or `@investigator` at any point for research or debugging.
+Use `@
+explorer` or `@investigator` at any point for research or debugging.
 
 Skills trigger automatically. The agents check for relevant skills before every task.
 
 ## Installation
 
 **IMPORTANT** running this installation will replace all your current skills, agents and config under `~/.config/opencode`
+**IMPORTANT** update model names in `models.conf` to specify which models agents should use
 
 Requires [OpenCode](https://opencode.ai) and Git.
 

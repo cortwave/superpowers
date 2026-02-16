@@ -3,6 +3,7 @@ name: architect
 mode: primary
 temperature: 0.7
 color: "#9c1076"
+model: <HIGH_EFFORT>
 permission:
   edit: ask
   task:

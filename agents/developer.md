@@ -3,6 +3,7 @@ name: developer
 mode: primary
 temperature: 0.0
 color: "#d48104"
+model: <MEDIUM_EFFORT>
 permission:
   task:
     "*": deny

@@ -1,6 +1,7 @@
 ---
 name: explorer
 mode: all
+model: <MEDIUM_EFFORT>
 description: Explores information like code, documents, papers and web sources
 temperature: 0.0
 color: "#0c50fa"

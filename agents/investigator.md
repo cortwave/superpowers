@@ -1,6 +1,7 @@
 ---
 name: investigator
 mode: all
+model: <HIGH_EFFORT>
 description: Helps find and analyze bugs and unexpected behaviour
 temperature: 0.5
 color: "#d474bf"
