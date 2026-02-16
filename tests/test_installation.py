@@ -82,3 +82,21 @@ class TestModelReplacement:
                 f"'{model}' which is not a value in models.conf. "
                 f"Expected one of: {models_conf_values}"
             )
+
+
+class TestUsingSuperpowersAppended:
+    def test_using_superpowers_appended_once(
+        self, installed_agents, using_superpowers_content
+    ) -> None:
+        marker = using_superpowers_content.splitlines()[0]
+        for path, fm, text in installed_agents:
+            agent_name = fm["name"]
+            assert using_superpowers_content in text, (
+                f"Installed agent '{agent_name}' ({path.name}) does not "
+                f"contain UsingSuperpowers.md content"
+            )
+            count = text.count(marker)
+            assert count == 1, (
+                f"Installed agent '{agent_name}' ({path.name}) contains "
+                f"UsingSuperpowers marker {count} times (expected exactly 1)"
+            )
