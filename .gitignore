@@ -3,3 +3,4 @@
 .claude/
 AGENTS.md
 __pycache__
+.venv
