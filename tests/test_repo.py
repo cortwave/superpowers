@@ -44,3 +44,16 @@ class TestTaskPermissions:
             assert task_perms.get("*") == "deny", (
                 f"Agent '{agent_name}' ({path.name}) does not deny all agents by default in task permissions"
             )
+
+    def test_allowed_task_agents_exist(
+        self, repo_agents: list[tuple[Path, dict]], repo_agent_names: set[str]
+    ) -> None:
+        for path, fm in repo_agents:
+            agent_name = fm["name"]
+            task_perms = fm.get("permission", {}).get("task", {})
+            allowed = [k for k, v in task_perms.items() if v == "allow"]
+            for allowed_agent in allowed:
+                assert allowed_agent in repo_agent_names, (
+                    f"Agent '{agent_name}' ({path.name}) allows task agent "
+                    f"'{allowed_agent}' which does not exist in agents/"
+                )
