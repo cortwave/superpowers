@@ -79,7 +79,6 @@ digraph brainstorming {
 
 **Documentation:**
 - Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
-- Use elements-of-style:writing-clearly-and-concisely skill if available
 
 **Implementation:**
 - Invoke the writing-plans skill to create a detailed implementation plan

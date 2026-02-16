@@ -1,6 +1,6 @@
 ---
 name: python-development
-description: Use when writing, modifying, running, or reviewing any Python code -- enforces uv for package management, strict typing with pyrefly checking, Pydantic for data modeling, and ruff for style
+description: Use when writing, modifying, running, or reviewing any Python code -- enforces uv for package management, strict typing checking, Pydantic for data modeling, and ruff for style
 ---
 
 # Python Development
@@ -77,34 +77,6 @@ class UserConfig:
 **Don't use:** `dataclasses.dataclass`, `TypedDict`, or raw dicts for structured data.
 **Exception:** Simple return values (tuples, primitives) don't need Pydantic.
 
-**Don't use `from __future__ import annotations`** in files that define Pydantic models. Pydantic evaluates annotations at runtime; `__future__` annotations make them strings, which breaks `model_rebuild()` and tricks ruff TCH rules into moving runtime-required imports into `TYPE_CHECKING` blocks.
-
-## Verification: After Every Subtask
-
-After completing each logical unit of work (function, class, module, test file), run checkers only on the files you changed in that subtask:
-
-```bash
-uv run pyrefly check <changed paths>    # Type checking
-uv run ruff check <changed paths>       # Style checking
-```
-
-```dot
-digraph verify {
-    rankdir=LR;
-    "Finish subtask" -> "Run pyrefly + ruff on changed files";
-    "Run pyrefly + ruff on changed files" -> "Errors?" [label=""];
-    "Errors?" -> "Fix ALL errors" [label="yes"];
-    "Fix ALL errors" -> "Run pyrefly + ruff on changed files";
-    "Errors?" -> "Next subtask" [label="no"];
-}
-```
-
-**Rules:**
-- Never proceed with unresolved errors in changed files
-- Fix errors immediately, not later
-- Re-run checks after fixes until clean
-- Do not expand checker scope beyond changed files during subtask verification
-
 ## No Suppressions -- Zero Tolerance
 
 **Never write any of these:**
@@ -117,7 +89,7 @@ digraph verify {
 **Never modify checker configs to dodge errors:**
 - Don't add rules to ruff `ignore` lists
 - Don't add files to ruff `exclude`
-- Don't add entries to pyrefly ignore configs
+- Don't add entries to typechecker ignore configs
 
 If a checker flags it, the code is wrong. Fix the code.
 
@@ -126,7 +98,7 @@ If a checker flags it, the code is wrong. Fix the code.
 | Excuse | Reality |
 |--------|---------|
 | "Just this once with `noqa`" | One suppression becomes many. Fix the code. |
-| "pyrefly is wrong here" | Investigate deeper. The type is usually wrong. |
+| "type checker is wrong here" | Investigate deeper. The type is usually wrong. |
 | "I'll add types later" | Types are part of implementation, not afterthought. |
 | "This dict is simpler than Pydantic" | Pydantic catches bugs at construction time. Use it. |
 | "Dataclass is fine for a prototype" | Prototypes become production. Pydantic from the start. |
