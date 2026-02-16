@@ -1,3 +1,6 @@
+import re
+
+
 class TestFilesCopied:
     def test_all_files_copied(
         self,
@@ -56,3 +59,26 @@ class TestFilesCopied:
         installed_skill_names = {d.name for d in installed_skill_dirs}
         extra_skills = installed_skill_names - repo_skill_dirs
         assert not extra_skills, f"Extra skills found in installation: {extra_skills}"
+
+
+class TestModelReplacement:
+    PLACEHOLDER_RE = re.compile(r"^<.+>$")
+
+    def test_model_placeholders_replaced(
+        self, installed_agents, models_conf_values
+    ) -> None:
+        for path, fm, _text in installed_agents:
+            agent_name = fm["name"]
+            model = fm.get("model")
+            assert model is not None, (
+                f"Installed agent '{agent_name}' ({path.name}) has no model field"
+            )
+            assert not self.PLACEHOLDER_RE.match(model), (
+                f"Installed agent '{agent_name}' ({path.name}) still has "
+                f"unreplaced placeholder: {model}"
+            )
+            assert model in models_conf_values, (
+                f"Installed agent '{agent_name}' ({path.name}) has model "
+                f"'{model}' which is not a value in models.conf. "
+                f"Expected one of: {models_conf_values}"
+            )
