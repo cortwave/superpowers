@@ -1,6 +1,6 @@
 ---
 name: python-development
-description: Use when writing, modifying, running, or reviewing any Python code -- enforces uv for package management, strict typing checking, Pydantic for data modeling, and ruff for style
+description: Use when writing, modifying, running, or reviewing any Python code -- enforces uv for package management, strict typing checking, Pydantic for data modeling
 ---
 
 # Python Development
@@ -104,7 +104,6 @@ If a checker flags it, the code is wrong. Fix the code.
 | "Dataclass is fine for a prototype" | Prototypes become production. Pydantic from the start. |
 | "It's just a demo / prototype" | Demos get shipped. Standards apply always. No exceptions for scope. |
 | "pip install is faster" | uv is faster than pip. Use `uv add`. |
-| "I'll run checks at the end" | Errors compound. Check after each subtask. Not at the end. |
 | "This is just a quick script" | Quick scripts become production code. Type it. |
 | "`Any` is fine here" | Spend 2 minutes finding the real type. |
 | "Bare `dict` return is fine" | Use specific generics: `dict[str, int]` not `dict`. |
@@ -116,8 +115,6 @@ If a checker flags it, the code is wrong. Fix the code.
 - Writing a function without type annotations
 - Using `pip install` or bare `python`
 - Creating a `dataclass` or `TypedDict` for structured data
-- Skipping checker run after finishing a subtask
-- Telling yourself "I'll run checks at the end, it's faster"
 - Adding rules to checker ignore lists
 - Thinking "it's just a prototype/demo" justifies lower standards
 
