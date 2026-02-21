@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-from tests.conftest import assert_agents_explicitly_disabled
+from tests.conftest import assert_agents_explicitly_disabled, parse_preset_yaml
 
 
 class TestSkillPermissions:
@@ -95,3 +95,24 @@ class TestAgentDisableConfig:
     ) -> None:
         agent_config: dict = repo_opencode_config.get("agent", {})
         assert_agents_explicitly_disabled(agent_config, repo_agent_names)
+
+
+class TestPresetYamls:
+    def test_yaml_files_exist(self, preset_yaml_files: list[Path]) -> None:
+        assert len(preset_yaml_files) > 0, (
+            "No preset YAML files found in .opencode/configs/"
+        )
+
+    def test_all_preset_agents_exist(
+        self,
+        preset_yaml_files: list[Path],
+        repo_agent_files: list[Path],
+    ) -> None:
+        repo_agent_names_set = {f.stem for f in repo_agent_files}
+        for yaml_file in preset_yaml_files:
+            agents = parse_preset_yaml(yaml_file)
+            for agent_name in agents:
+                assert agent_name in repo_agent_names_set, (
+                    f"Preset '{yaml_file.name}' references agent '{agent_name}' "
+                    f"which does not exist in agents/"
+                )

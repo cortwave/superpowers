@@ -34,6 +34,16 @@ def parse_models_conf(path: Path) -> dict[str, str]:
     return result
 
 
+def parse_preset_yaml(path: Path) -> list[str]:
+    """Parse the agents list from a preset YAML file.
+
+    Returns a list of agent names (may be empty).
+    """
+    raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    agents = raw.get("agents") or []
+    return [str(a) for a in agents]
+
+
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
     return REPO_ROOT
@@ -76,6 +86,11 @@ def models_conf_keys(models_conf: dict[str, str]) -> set[str]:
 @pytest.fixture(scope="session")
 def models_conf_values(models_conf: dict[str, str]) -> set[str]:
     return set(models_conf.values())
+
+
+@pytest.fixture(scope="session")
+def preset_yaml_files(repo_root: Path) -> list[Path]:
+    return sorted((repo_root / ".opencode" / "configs").glob("*.yaml"))
 
 
 @pytest.fixture(scope="session")
