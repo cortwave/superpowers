@@ -1,6 +1,6 @@
 ---
 name: writer
-mode: subagent
+mode: primary
 model: <HIGH_EFFORT>
 temperature: 0.5
 permission:
