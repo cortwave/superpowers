@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from tests.conftest import assert_agents_explicitly_disabled
+from tests.conftest import parse_preset_yaml
 
 
 class TestFilesCopied:
@@ -13,12 +13,18 @@ class TestFilesCopied:
         installed_agent_files,
         installed_skill_dirs,
     ) -> None:
-        # Agents
+        # Agents are in agents-pool, not agents/
         repo_agent_names_set = {f.name for f in repo_agent_files}
         installed_agent_names_set = {f.name for f in installed_agent_files}
         missing_agents = repo_agent_names_set - installed_agent_names_set
-        assert not missing_agents, (
-            f"Agents not copied to installation: {missing_agents}"
+        assert not missing_agents, f"Agents not copied to agents-pool: {missing_agents}"
+
+        # agents/ must exist and be empty
+        agents_dir = install_dir / "agents"
+        assert agents_dir.is_dir(), "agents/ directory does not exist"
+        md_files = list(agents_dir.glob("*.md"))
+        assert not md_files, (
+            f"agents/ must be empty but contains: {[f.name for f in md_files]}"
         )
 
         # Skills
@@ -37,11 +43,6 @@ class TestFilesCopied:
                 f"Skill '{skill_dir.name}' missing SKILL.md"
             )
 
-        # opencode.jsonc
-        assert (install_dir / "opencode.jsonc").is_file(), (
-            "opencode.jsonc not copied to installation"
-        )
-
     def test_no_extra_skills_or_agents(
         self,
         repo_root,
@@ -49,11 +50,11 @@ class TestFilesCopied:
         installed_agent_files,
         installed_skill_dirs,
     ) -> None:
-        # No extra agents
+        # No extra agents in pool
         repo_agent_names_set = {f.name for f in repo_agent_files}
         installed_agent_names_set = {f.name for f in installed_agent_files}
         extra_agents = installed_agent_names_set - repo_agent_names_set
-        assert not extra_agents, f"Extra agents found in installation: {extra_agents}"
+        assert not extra_agents, f"Extra agents found in agents-pool: {extra_agents}"
 
         # No extra skills
         repo_skill_dirs = {
@@ -105,11 +106,47 @@ class TestUsingSuperpowersAppended:
             )
 
 
-class TestAgentDisableConfig:
-    def test_all_agents_explicitly_disabled_in_config(
+class TestPresets:
+    def test_preset_dirs_exist(
         self,
-        repo_agent_names: set[str],
-        installed_opencode_config: dict,
+        repo_root: Path,
+        installed_preset_dirs: list[Path],
     ) -> None:
-        agent_config: dict = installed_opencode_config.get("agent", {})
-        assert_agents_explicitly_disabled(agent_config, repo_agent_names)
+        yaml_files = sorted((repo_root / ".opencode" / "configs").glob("*.yaml"))
+        expected_names = {f.stem for f in yaml_files}
+        installed_names = {d.name for d in installed_preset_dirs}
+        missing = expected_names - installed_names
+        assert not missing, f"Preset directories not created for: {missing}"
+
+    def test_preset_agents_match_yaml(
+        self,
+        repo_root: Path,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        yaml_dir = repo_root / ".opencode" / "configs"
+        for preset_dir in installed_preset_dirs:
+            yaml_file = yaml_dir / f"{preset_dir.name}.yaml"
+            if not yaml_file.exists():
+                continue
+            expected_agents = set(parse_preset_yaml(yaml_file))
+            installed_agents = {f.stem for f in (preset_dir / "agents").glob("*.md")}
+            assert expected_agents == installed_agents, (
+                f"Preset '{preset_dir.name}': expected agents {expected_agents}, "
+                f"got {installed_agents}"
+            )
+
+    def test_preset_symlinks_valid(
+        self,
+        install_dir: Path,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        pool_dir = install_dir / "agents-pool"
+        for preset_dir in installed_preset_dirs:
+            for symlink in (preset_dir / "agents").glob("*.md"):
+                assert symlink.is_symlink(), f"{symlink} is not a symlink"
+                assert symlink.resolve().parent == pool_dir.resolve(), (
+                    f"{symlink} does not point into agents-pool/"
+                )
+                assert symlink.exists(), (
+                    f"Symlink {symlink} is broken (target does not exist)"
+                )

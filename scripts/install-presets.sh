@@ -78,7 +78,7 @@ for yaml_file in "${yaml_files[@]}"; do
         "$preset_name" "$agent_name" >&2
       continue
     fi
-    ln -sf "../../agents-pool/${agent_name}.md" "$preset_agents_dir/${agent_name}.md"
+    ln -sf "../../../agents-pool/${agent_name}.md" "$preset_agents_dir/${agent_name}.md"
   done
 
   printf 'Created preset "%s" with %d agent(s)\n' "$preset_name" "${#agents[@]}"
