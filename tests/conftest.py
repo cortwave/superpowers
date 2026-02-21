@@ -100,10 +100,18 @@ def install_dir() -> Path:
 
 @pytest.fixture(scope="session")
 def installed_agent_files(install_dir: Path) -> list[Path]:
-    agents_dir = install_dir / "agents"
-    if not agents_dir.is_dir():
-        pytest.skip("Installation directory not found — run install.sh first")
-    return sorted(agents_dir.glob("*.md"))
+    pool_dir = install_dir / "agents-pool"
+    if not pool_dir.is_dir():
+        pytest.skip("agents-pool not found — run install.sh first")
+    return sorted(pool_dir.glob("*.md"))
+
+
+@pytest.fixture(scope="session")
+def installed_preset_dirs(install_dir: Path) -> list[Path]:
+    presets_dir = install_dir / "presets"
+    if not presets_dir.is_dir():
+        pytest.skip("presets/ not found — run install.sh first")
+    return sorted([d for d in presets_dir.iterdir() if d.is_dir()])
 
 
 @pytest.fixture(scope="session")
@@ -171,42 +179,3 @@ def parse_opencode_jsonc(path: Path) -> dict:
     """Parse a JSONC file (strips comments and trailing commas)."""
     raw = path.read_text(encoding="utf-8")
     return json.loads(_strip_jsonc(raw))
-
-
-# Default OpenCode built-in agents that must be explicitly configured.
-OPENCODE_DEFAULT_AGENTS: frozenset[str] = frozenset(
-    {"plan", "build", "general", "explore"}
-)
-
-
-def assert_agents_explicitly_disabled(
-    agent_config: dict, repo_agent_names: set[str]
-) -> None:
-    """Assert every repo agent and every OpenCode default agent has an explicit
-    disable entry (true or false) in the given agent config block."""
-    all_expected = repo_agent_names | OPENCODE_DEFAULT_AGENTS
-    missing: list[str] = []
-    not_bool: list[str] = []
-    for name in sorted(all_expected):
-        entry = agent_config.get(name)
-        if entry is None:
-            missing.append(name)
-        elif not isinstance(entry.get("disable"), bool):
-            not_bool.append(name)
-    assert not missing, (
-        f"Agents with no explicit entry in agent config block: {missing}"
-    )
-    assert not not_bool, f"Agents whose 'disable' value is not true/false: {not_bool}"
-
-
-@pytest.fixture(scope="session")
-def repo_opencode_config(repo_root: Path) -> dict:
-    return parse_opencode_jsonc(repo_root / ".opencode" / "opencode.jsonc")
-
-
-@pytest.fixture(scope="session")
-def installed_opencode_config(install_dir: Path) -> dict:
-    config_path = install_dir / "opencode.jsonc"
-    if not config_path.is_file():
-        pytest.skip("opencode.jsonc not found in installation — run install.sh first")
-    return parse_opencode_jsonc(config_path)
