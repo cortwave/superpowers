@@ -25,7 +25,7 @@ if [[ -z "${HIGH_EFFORT:-}" || -z "${MEDIUM_EFFORT:-}" ]]; then
   exit 1
 fi
 
-AGENTS_DIR="$HOME/.config/opencode/agents"
+AGENTS_DIR="${AGENTS_DIR:-$HOME/.config/opencode/agents}"
 if [[ ! -d "$AGENTS_DIR" ]]; then
   printf 'Agents directory not found at %s\n' "$AGENTS_DIR" >&2
   exit 1
