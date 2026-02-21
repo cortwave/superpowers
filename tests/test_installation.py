@@ -1,4 +1,7 @@
 import re
+from pathlib import Path
+
+from tests.conftest import assert_agents_explicitly_disabled
 
 
 class TestFilesCopied:
@@ -100,3 +103,13 @@ class TestUsingSuperpowersAppended:
                 f"Installed agent '{agent_name}' ({path.name}) contains "
                 f"UsingSuperpowers marker {count} times (expected exactly 1)"
             )
+
+
+class TestAgentDisableConfig:
+    def test_all_agents_explicitly_disabled_in_config(
+        self,
+        repo_agent_names: set[str],
+        installed_opencode_config: dict,
+    ) -> None:
+        agent_config: dict = installed_opencode_config.get("agent", {})
+        assert_agents_explicitly_disabled(agent_config, repo_agent_names)
