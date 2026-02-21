@@ -1,7 +1,11 @@
 import re
 from pathlib import Path
 
-from tests.conftest import parse_opencode_jsonc, parse_preset_yaml
+from tests.conftest import (
+    parse_opencode_jsonc,
+    parse_preset_yaml,
+    parse_preset_yaml_skills,
+)
 
 OPENCODE_BUILTIN_AGENTS: frozenset[str] = frozenset(
     {"plan", "build", "general", "explore"}
@@ -31,15 +35,13 @@ class TestFilesCopied:
             f"agents/ must be empty but contains: {[f.name for f in md_files]}"
         )
 
-        # Skills
-        repo_skill_dirs = {
+        # Skills are in skills-pool, not skills/
+        repo_skill_names = {
             d.name for d in (repo_root / "skills").iterdir() if d.is_dir()
         }
         installed_skill_names = {d.name for d in installed_skill_dirs}
-        missing_skills = repo_skill_dirs - installed_skill_names
-        assert not missing_skills, (
-            f"Skills not copied to installation: {missing_skills}"
-        )
+        missing_skills = repo_skill_names - installed_skill_names
+        assert not missing_skills, f"Skills not copied to skills-pool: {missing_skills}"
 
         # Each installed skill has SKILL.md
         for skill_dir in installed_skill_dirs:
@@ -60,13 +62,13 @@ class TestFilesCopied:
         extra_agents = installed_agent_names_set - repo_agent_names_set
         assert not extra_agents, f"Extra agents found in agents-pool: {extra_agents}"
 
-        # No extra skills
-        repo_skill_dirs = {
+        # No extra skills in pool
+        repo_skill_names = {
             d.name for d in (repo_root / "skills").iterdir() if d.is_dir()
         }
         installed_skill_names = {d.name for d in installed_skill_dirs}
-        extra_skills = installed_skill_names - repo_skill_dirs
-        assert not extra_skills, f"Extra skills found in installation: {extra_skills}"
+        extra_skills = installed_skill_names - repo_skill_names
+        assert not extra_skills, f"Extra skills found in skills-pool: {extra_skills}"
 
 
 class TestModelReplacement:
@@ -139,7 +141,7 @@ class TestPresets:
                 f"got {installed_agents}"
             )
 
-    def test_preset_symlinks_valid(
+    def test_preset_agent_symlinks_valid(
         self,
         install_dir: Path,
         installed_preset_dirs: list[Path],
@@ -150,6 +152,55 @@ class TestPresets:
                 assert symlink.is_symlink(), f"{symlink} is not a symlink"
                 assert symlink.resolve().parent == pool_dir.resolve(), (
                     f"{symlink} does not point into agents-pool/"
+                )
+                assert symlink.exists(), (
+                    f"Symlink {symlink} is broken (target does not exist)"
+                )
+
+    def test_preset_skills_match_yaml(
+        self,
+        repo_root: Path,
+        install_dir: Path,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        yaml_dir = repo_root / ".opencode" / "configs"
+        all_pool_skills = {
+            d.name for d in (install_dir / "skills-pool").iterdir() if d.is_dir()
+        }
+        for preset_dir in installed_preset_dirs:
+            yaml_file = yaml_dir / f"{preset_dir.name}.yaml"
+            if not yaml_file.exists():
+                continue
+            skills_spec = parse_preset_yaml_skills(yaml_file)
+            if skills_spec == ["*"]:
+                expected_skills = all_pool_skills
+            else:
+                expected_skills = set(skills_spec)
+            installed_skills = (
+                {d.name for d in (preset_dir / "skills").iterdir() if d.is_dir()}
+                if (preset_dir / "skills").is_dir()
+                else set()
+            )
+            assert expected_skills == installed_skills, (
+                f"Preset '{preset_dir.name}': expected skills {expected_skills}, "
+                f"got {installed_skills}"
+            )
+
+    def test_preset_skill_symlinks_valid(
+        self,
+        install_dir: Path,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        pool_dir = install_dir / "skills-pool"
+        for preset_dir in installed_preset_dirs:
+            skills_dir = preset_dir / "skills"
+            if not skills_dir.is_dir():
+                continue
+            for symlink in skills_dir.iterdir():
+                if not symlink.is_symlink():
+                    continue
+                assert symlink.resolve().parent == pool_dir.resolve(), (
+                    f"{symlink} does not point into skills-pool/"
                 )
                 assert symlink.exists(), (
                     f"Symlink {symlink} is broken (target does not exist)"
@@ -178,13 +229,11 @@ class TestPresets:
             config = parse_opencode_jsonc(preset_dir / "opencode.jsonc")
             agent_block = config.get("agent", {})
             if not expected_agents:
-                # Empty preset: no agent block needed
                 assert not agent_block, (
                     f"Preset '{preset_dir.name}' has no agents but opencode.jsonc "
                     f"contains an agent block: {agent_block}"
                 )
             else:
-                # Non-empty preset: all built-ins must be disabled
                 for builtin in OPENCODE_BUILTIN_AGENTS:
                     entry = agent_block.get(builtin, {})
                     assert entry.get("disable") is True, (

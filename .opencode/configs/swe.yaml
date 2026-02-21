@@ -5,3 +5,5 @@ agents:
   - explorer
   - investigator
   - writer
+skills:
+  - "*"

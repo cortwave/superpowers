@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-from tests.conftest import parse_preset_yaml
+from tests.conftest import parse_preset_yaml, parse_preset_yaml_skills
 
 
 class TestSkillPermissions:
@@ -105,4 +105,22 @@ class TestPresetYamls:
                 assert agent_name in repo_agent_names_set, (
                     f"Preset '{yaml_file.name}' references agent '{agent_name}' "
                     f"which does not exist in agents/"
+                )
+
+    def test_all_preset_skills_exist(
+        self,
+        preset_yaml_files: list[Path],
+        repo_root: Path,
+    ) -> None:
+        repo_skill_names = {
+            d.name for d in (repo_root / "skills").iterdir() if d.is_dir()
+        }
+        for yaml_file in preset_yaml_files:
+            skills = parse_preset_yaml_skills(yaml_file)
+            for skill_name in skills:
+                if skill_name == "*":
+                    continue
+                assert skill_name in repo_skill_names, (
+                    f"Preset '{yaml_file.name}' references skill '{skill_name}' "
+                    f"which does not exist in skills/"
                 )
