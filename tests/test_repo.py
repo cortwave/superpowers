@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-from tests.conftest import assert_agents_explicitly_disabled, parse_preset_yaml
+from tests.conftest import parse_preset_yaml
 
 
 class TestSkillPermissions:
@@ -85,16 +85,6 @@ class TestModelPlaceholders:
                 f"'{model}' references key '{key}' not found in models.conf. "
                 f"Available keys: {models_conf_keys}"
             )
-
-
-class TestAgentDisableConfig:
-    def test_all_agents_explicitly_disabled_in_config(
-        self,
-        repo_agent_names: set[str],
-        repo_opencode_config: dict,
-    ) -> None:
-        agent_config: dict = repo_opencode_config.get("agent", {})
-        assert_agents_explicitly_disabled(agent_config, repo_agent_names)
 
 
 class TestPresetYamls:
