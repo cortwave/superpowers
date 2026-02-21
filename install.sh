@@ -2,15 +2,11 @@
 
 set -euo pipefail
 
-# skills
-rm -rf ~/.config/opencode/skills
-cp -r skills ~/.config/opencode/skills
-
 # Ensure agents/ is empty (prevents global agent leaking)
 rm -rf ~/.config/opencode/agents
 mkdir -p ~/.config/opencode/agents
 
-# Build agents-pool and preset directories with symlinks
+# Build agents-pool, skills-pool, and preset directories with symlinks
 ./scripts/install-presets.sh
 
 # Install ocode function into ~/.bashrc

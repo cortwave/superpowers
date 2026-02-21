@@ -6,22 +6,24 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIGS_DIR="$ROOT_DIR/.opencode/configs"
 INSTALL_DIR="$HOME/.config/opencode"
 POOL_DIR="$INSTALL_DIR/agents-pool"
+SKILLS_POOL_DIR="$INSTALL_DIR/skills-pool"
 PRESETS_DIR="$INSTALL_DIR/presets"
 
-# Parse a simple yaml list under an "agents:" key.
-# Supports both block style ("  - name") and inline style ("agents: [a, b]").
-# Prints one agent name per line.
-parse_agents_from_yaml() {
+# Parse a simple yaml list under a given key.
+# Supports both block style ("  - name") and inline style ("key: [a, b]").
+# Prints one item per line.
+parse_list_from_yaml() {
   local file="$1"
-  local in_agents_block=0
+  local key="$2"
+  local in_block=0
 
   while IFS= read -r line || [[ -n "$line" ]]; do
-    if [[ "$line" =~ ^agents:[[:space:]]*$ ]]; then
-      in_agents_block=1
+    if [[ "$line" =~ ^${key}:[[:space:]]*$ ]]; then
+      in_block=1
       continue
     fi
 
-    if [[ "$line" =~ ^agents:[[:space:]]*\[(.+)\] ]]; then
+    if [[ "$line" =~ ^${key}:[[:space:]]*\[(.+)\] ]]; then
       local inline="${BASH_REMATCH[1]}"
       IFS=',' read -ra items <<< "$inline"
       for item in "${items[@]}"; do
@@ -29,15 +31,17 @@ parse_agents_from_yaml() {
         item="${item//\"/}"
         [[ -n "$item" ]] && printf '%s\n' "$item"
       done
-      in_agents_block=0
+      in_block=0
       continue
     fi
 
-    if [[ "$in_agents_block" -eq 1 ]]; then
+    if [[ "$in_block" -eq 1 ]]; then
       if [[ "$line" =~ ^[[:space:]]*-[[:space:]]+([^[:space:]#]+) ]]; then
-        printf '%s\n' "${BASH_REMATCH[1]}"
+        local val="${BASH_REMATCH[1]}"
+        val="${val//\"/}"
+        printf '%s\n' "$val"
       elif [[ "$line" =~ ^[^[:space:]#] ]]; then
-        in_agents_block=0
+        in_block=0
       fi
     fi
   done < "$file"
@@ -50,6 +54,11 @@ printf 'Populated agents-pool at %s\n' "$POOL_DIR"
 
 # --- 2. Run placeholder replacement + UsingSuperpowers append on pool ---
 AGENTS_DIR="$POOL_DIR" "$ROOT_DIR/scripts/update-opencode-agents.sh"
+
+# --- 3. Populate skills-pool from repo skills/ ---
+rm -rf "$SKILLS_POOL_DIR"
+cp -r "$ROOT_DIR/skills" "$SKILLS_POOL_DIR"
+printf 'Populated skills-pool at %s\n' "$SKILLS_POOL_DIR"
 
 # OpenCode built-in agents that must be disabled when a preset supplies its own agents.
 OPENCODE_BUILTIN_AGENTS=(plan build general explore)
@@ -87,7 +96,7 @@ write_preset_jsonc() {
   } > "$out"
 }
 
-# --- 3. Build preset directories ---
+# --- 4. Build preset directories ---
 rm -rf "$PRESETS_DIR"
 mkdir -p "$PRESETS_DIR"
 
@@ -104,9 +113,22 @@ for yaml_file in "${yaml_files[@]}"; do
   preset_name="$(basename "$yaml_file" .yaml)"
   preset_dir="$PRESETS_DIR/$preset_name"
   preset_agents_dir="$preset_dir/agents"
+  preset_skills_dir="$preset_dir/skills"
   mkdir -p "$preset_agents_dir"
+  mkdir -p "$preset_skills_dir"
 
-  mapfile -t agents < <(parse_agents_from_yaml "$yaml_file")
+  mapfile -t agents < <(parse_list_from_yaml "$yaml_file" "agents")
+  mapfile -t skills_spec < <(parse_list_from_yaml "$yaml_file" "skills")
+
+  # Resolve skills_spec: ["*"] means all skills in pool, otherwise named list
+  skills=()
+  if [[ "${#skills_spec[@]}" -eq 1 && "${skills_spec[0]}" == "*" ]]; then
+    for skill_dir in "$SKILLS_POOL_DIR"/*/; do
+      [[ -d "$skill_dir" ]] && skills+=("$(basename "$skill_dir")")
+    done
+  else
+    skills=("${skills_spec[@]}")
+  fi
 
   for agent_name in "${agents[@]}"; do
     pool_file="$POOL_DIR/${agent_name}.md"
@@ -118,7 +140,18 @@ for yaml_file in "${yaml_files[@]}"; do
     ln -sf "../../../agents-pool/${agent_name}.md" "$preset_agents_dir/${agent_name}.md"
   done
 
+  for skill_name in "${skills[@]}"; do
+    pool_skill_dir="$SKILLS_POOL_DIR/${skill_name}"
+    if [[ ! -d "$pool_skill_dir" ]]; then
+      printf 'Warning: preset "%s" references unknown skill "%s" — skipping\n' \
+        "$preset_name" "$skill_name" >&2
+      continue
+    fi
+    ln -sf "../../../skills-pool/${skill_name}" "$preset_skills_dir/${skill_name}"
+  done
+
   write_preset_jsonc "$preset_dir" "${agents[@]}"
 
-  printf 'Created preset "%s" with %d agent(s)\n' "$preset_name" "${#agents[@]}"
+  printf 'Created preset "%s" with %d agent(s) and %d skill(s)\n' \
+    "$preset_name" "${#agents[@]}" "${#skills[@]}"
 done
