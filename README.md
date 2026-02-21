@@ -15,7 +15,7 @@ The key difference: instead of one agent doing everything, this fork splits work
 | **code-reviewer** | subagent | Reviews completed steps against plans and coding standards. No external skills. | none |
 | **writer** | subagent (0.5) | Writing subagent for docs and skills. | writing-skills |
 
-**How agents interact:** The developer can launch code-reviewer as a subagent. The architect and investigator can request edits but need confirmation. The ask agent is read-only. This separation enforces discipline -- the agent designing your system is not the same one implementing it.
+**How agents interact:** The developer can launch code-reviewer as a subagent. The architect and investigator can request edits but need confirmation. The explorer is read-only. This separation enforces discipline -- the agent designing your system is not the same one implementing it.
 
 ## Workflow
 
@@ -29,6 +29,33 @@ Use `@explorer` or `@investigator` at any point for research or debugging.
 
 Skills trigger automatically. The agents check for relevant skills before every task.
 
+## Presets
+
+The installer creates two named presets, each launched via the `ocode` shell function:
+
+| Preset | Agents | Skills | Usage |
+|--------|--------|--------|-------|
+| **swe** | all 6 agents | all skills | `ocode swe` |
+| **default** | none (OpenCode built-ins) | none | `ocode` or `ocode default` |
+
+Presets live in `~/.config/opencode/presets/<name>/`. Each preset has:
+- `agents/` — symlinks into `~/.config/opencode/agents-pool/`
+- `skills/` — symlinks into `~/.config/opencode/skills-pool/`
+- `opencode.jsonc` — disables built-in agents when custom agents are present
+
+To add a custom preset, create a YAML file in `.opencode/configs/` and re-run `./install.sh`:
+
+```yaml
+# .opencode/configs/mypreset.yaml
+agents:
+  - developer
+  - explorer
+skills:
+  - "*"        # all skills, or list names explicitly
+```
+
+Then launch it with `ocode mypreset`.
+
 ## Installation
 
 **IMPORTANT** running this installation will replace all your current skills, agents and config under `~/.config/opencode`
@@ -40,6 +67,13 @@ Requires [OpenCode](https://opencode.ai).
 ```bash
 ./install.sh
 ```
+
+The installer:
+1. Copies all agents into `~/.config/opencode/agents-pool/`
+2. Copies all skills into `~/.config/opencode/skills-pool/`
+3. Creates a preset directory for each YAML in `.opencode/configs/`, with symlinks for the listed agents and skills
+4. Installs an `ocode` shell function in `~/.bashrc` for launching presets
+
 ## License
 
 MIT License -- see LICENSE file for details.
