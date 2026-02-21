@@ -1,7 +1,11 @@
 import re
 from pathlib import Path
 
-from tests.conftest import parse_preset_yaml
+from tests.conftest import parse_opencode_jsonc, parse_preset_yaml
+
+OPENCODE_BUILTIN_AGENTS: frozenset[str] = frozenset(
+    {"plan", "build", "general", "explore"}
+)
 
 
 class TestFilesCopied:
@@ -150,3 +154,40 @@ class TestPresets:
                 assert symlink.exists(), (
                     f"Symlink {symlink} is broken (target does not exist)"
                 )
+
+    def test_preset_jsonc_exists(
+        self,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        for preset_dir in installed_preset_dirs:
+            assert (preset_dir / "opencode.jsonc").is_file(), (
+                f"Preset '{preset_dir.name}' is missing opencode.jsonc"
+            )
+
+    def test_preset_jsonc_disables_builtins_when_agents_present(
+        self,
+        repo_root: Path,
+        installed_preset_dirs: list[Path],
+    ) -> None:
+        yaml_dir = repo_root / ".opencode" / "configs"
+        for preset_dir in installed_preset_dirs:
+            yaml_file = yaml_dir / f"{preset_dir.name}.yaml"
+            if not yaml_file.exists():
+                continue
+            expected_agents = parse_preset_yaml(yaml_file)
+            config = parse_opencode_jsonc(preset_dir / "opencode.jsonc")
+            agent_block = config.get("agent", {})
+            if not expected_agents:
+                # Empty preset: no agent block needed
+                assert not agent_block, (
+                    f"Preset '{preset_dir.name}' has no agents but opencode.jsonc "
+                    f"contains an agent block: {agent_block}"
+                )
+            else:
+                # Non-empty preset: all built-ins must be disabled
+                for builtin in OPENCODE_BUILTIN_AGENTS:
+                    entry = agent_block.get(builtin, {})
+                    assert entry.get("disable") is True, (
+                        f"Preset '{preset_dir.name}': built-in agent '{builtin}' "
+                        f"is not disabled in opencode.jsonc"
+                    )
