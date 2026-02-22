@@ -2,8 +2,10 @@
 
 set -euo pipefail
 
+# Clear files from any previous installation
+./scripts/clear_existing.sh
+
 # Ensure agents/ is empty (prevents global agent leaking)
-rm -rf ~/.config/opencode/agents
 mkdir -p ~/.config/opencode/agents
 
 # Build agents-pool, skills-pool, and preset directories with symlinks
