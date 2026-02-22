@@ -12,4 +12,5 @@ permission:
     "dispatching-parallel-agents": allow
     "writing-skills": allow
     "test-driven-development": allow
+    "maintaining-readmes": allow
 ---

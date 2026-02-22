@@ -15,4 +15,5 @@ permission:
     "exploring-data": allow
     "python-development": allow
     "test-driven-development": allow
+    "maintaining-readmes": allow
 ---

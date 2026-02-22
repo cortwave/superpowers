@@ -23,4 +23,5 @@ permission:
     "using-git-worktrees": allow
     "verification-before-completion": allow 
     "python-development": allow
+    "maintaining-readmes": allow
 ---
