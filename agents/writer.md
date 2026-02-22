@@ -11,4 +11,5 @@ permission:
     "*": deny
     "dispatching-parallel-agents": allow
     "writing-skills": allow
+    "test-driven-development": allow
 ---
