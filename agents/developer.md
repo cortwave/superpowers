@@ -13,14 +13,11 @@ permission:
   skill:
     "*": deny
     "dispatching-parallel-agents": allow
-    "finishing-a-development-branch": allow
     "executing-plans": allow
     "receiving-code-review": allow
     "requesting-code-review": allow
-    "subagent-driven-development": allow
     "systematic-debugging": allow
     "test-driven-development": allow
-    "using-git-worktrees": allow
     "verification-before-completion": allow 
     "python-development": allow
     "maintaining-readmes": allow

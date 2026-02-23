@@ -17,15 +17,7 @@ OCODE_MARKER_START="# >>> ocode function >>>"
 OCODE_MARKER_END="# <<< ocode function <<<"
 
 OCODE_BLOCK="$OCODE_MARKER_START
-ocode() {
-  local preset=\"\${1:-superpowers}\"
-  local dir=\"\$HOME/.config/opencode/presets/\$preset\"
-  if [ ! -d \"\$dir\" ]; then
-    echo \"Unknown preset: \$preset\" >&2
-    return 1
-  fi
-  OPENCODE_CONFIG_DIR=\"\$dir\" opencode
-}
+$(cat "$(dirname "$0")/scripts/bashrc-block.sh")
 $OCODE_MARKER_END"
 
 # Remove any existing ocode block

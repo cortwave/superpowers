@@ -10,7 +10,7 @@ The key difference: instead of one agent doing everything, this fork splits work
 |-------|------|------|--------|
 | **architect** | primary (0.7) | Designs solutions, explores trade-offs, produces design docs and implementation plans. Cannot write code. | brainstorming, writing-plans, dispatching-parallel-agents |
 | **explorer** | primary (0.0) | Finds, extracts, and synthesizes information from code, docs, and the web. Cannot edit files. | exploring-codebases, dispatching-parallel-agents |
-| **developer** | primary (0.0) | The main coding agent. Writes code, runs tests, manages branches, reviews work. | TDD, systematic-debugging, SDD, executing-plans, git-worktrees, code-review, verification, python-development |
+| **developer** | primary (0.0) | The main coding agent. Writes code, runs tests, manages branches, reviews work. | TDD, systematic-debugging, SDD, executing-plans, code-review, verification, python-development |
 | **investigator** | all (0.5) | Finds and analyzes bugs and unexpected behavior. Cannot edit files without asking. | systematic-debugging, brainstorming |
 | **code-reviewer** | subagent | Reviews completed steps against plans and coding standards. No external skills. | none |
 | **writer** | subagent (0.5) | Writing subagent for docs and skills. | writing-skills |
