@@ -2,18 +2,19 @@
 
 A fork of [obra/superpowers](https://github.com/obra/superpowers), rebuilt exclusively for [OpenCode](https://opencode.ai) with specialized agents that replace the original monolithic workflow.
 
-The key difference: instead of one agent doing everything, this fork splits work across **6 focused agents** with scoped skill permissions. Each agent has a defined role, temperature, and set of allowed skills -- preventing overreach and keeping context tight.
+The key difference: instead of one agent doing everything, this fork splits work across **focused agents** with scoped skill permissions. Each agent has a defined role, temperature, and set of allowed skills -- preventing overreach and keeping context tight.
 
 ## Agents
 
 | Agent | Mode | Role | Skills |
 |-------|------|------|--------|
-| **architect** | primary (0.7) | Designs solutions, explores trade-offs, produces design docs and implementation plans. Cannot write code. | brainstorming, writing-plans, dispatching-parallel-agents |
-| **explorer** | primary (0.0) | Finds, extracts, and synthesizes information from code, docs, and the web. Cannot edit files. | exploring-codebases, dispatching-parallel-agents |
-| **developer** | primary (0.0) | The main coding agent. Writes code, runs tests, manages branches, reviews work. | TDD, systematic-debugging, SDD, executing-plans, code-review, verification, python-development |
-| **investigator** | all (0.5) | Finds and analyzes bugs and unexpected behavior. Cannot edit files without asking. | systematic-debugging, brainstorming |
+| **architect** | primary (0.7) | Designs solutions, explores trade-offs, produces design docs and implementation plans. Cannot write code. | brainstorming, writing-plans, dispatching-parallel-agents, maintaining-readmes |
+| **explorer** | all (0.0) | Finds, extracts, and synthesizes information from code, docs, and the web. Cannot edit files. | exploring-codebases, dispatching-parallel-agents, maintaining-readmes |
+| **developer** | primary (0.0) | The main coding agent. Writes code, runs tests, manages branches, reviews work. | TDD, systematic-debugging, executing-plans, receiving-code-review, requesting-code-review, verification, python-development, dispatching-parallel-agents, maintaining-readmes |
+| **investigator** | all (0.5) | Finds and analyzes bugs and unexpected behavior. Cannot edit files without asking. | systematic-debugging, brainstorming, dispatching-parallel-agents |
 | **code-reviewer** | subagent | Reviews completed steps against plans and coding standards. No external skills. | none |
-| **writer** | subagent (0.5) | Writing subagent for docs and skills. | writing-skills |
+| **writer** | primary (0.5) | Writing agent for docs and skills. | writing-skills, dispatching-parallel-agents, maintaining-readmes |
+| **data** | primary (0.5) | Data science agent. Builds pipelines, EDA notebooks, ML pipelines. | building-data-pipelines, creating-eda-notebooks, exploring-data, python-development, TDD, maintaining-readmes |
 
 **How agents interact:** The developer can launch code-reviewer as a subagent. The architect and investigator can request edits but need confirmation. The explorer is read-only. This separation enforces discipline -- the agent designing your system is not the same one implementing it.
 
@@ -31,11 +32,13 @@ Skills trigger automatically. The agents check for relevant skills before every 
 
 ## Presets
 
-The installer creates two named presets, each launched via the `ocode` shell function:
+The installer creates named presets from YAML configs in `.opencode/configs/`, each launched via the `ocode` shell function:
 
 | Preset | Agents | Skills | Usage |
 |--------|--------|--------|-------|
-| **swe** | all 6 agents | all skills | `ocode swe` |
+| **swe** | architect, code-reviewer, developer, explorer, investigator | all | `ocode swe` |
+| **ml** | data, explorer | all | `ocode ml` |
+| **write** | writer, explorer | all | `ocode write` |
 | **default** | none (OpenCode built-ins) | none | `ocode` or `ocode default` |
 
 Presets live in `~/.config/opencode/presets/<name>/`. Each preset has:
